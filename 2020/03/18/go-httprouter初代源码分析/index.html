@@ -6,15 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020 | 知否知否</title>
+  <title>go-httprouter初代源码分析 | 知否知否</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="知否知否">
-<meta property="og:url" content="http://yoursite.com/archives/2020/index.html">
+  <meta name="description" content="1.阅前了解——uri,url,urn                        hierarchical part         ┌───────────────────┴─────────────────────┐                     authority               path         ┌───────────────┴─────────────">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-httprouter初代源码分析">
+<meta property="og:url" content="http://yoursite.com/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="知否知否">
+<meta property="og:description" content="1.阅前了解——uri,url,urn                        hierarchical part         ┌───────────────────┴─────────────────────┐                     authority               path         ┌───────────────┴─────────────">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/URI_syntax_diagram.svg/1920px-URI_syntax_diagram.svg.png">
+<meta property="article:published_time" content="2020-03-18T12:46:45.291Z">
+<meta property="article:modified_time" content="2020-03-18T12:42:42.013Z">
 <meta property="article:author" content="bryce">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/URI_syntax_diagram.svg/1920px-URI_syntax_diagram.svg.png">
   
     <link rel="alternative" href="/atom.xml" title="知否知否" type="application/atom+xml">
   
@@ -146,157 +152,146 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-go-httprouter初代源码分析" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      go-httprouter初代源码分析
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="archive-article-date">
+
+        
+        <a href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="archive-article-date">
   	<time datetime="2020-03-18T12:46:45.291Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-18</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">go-httprouter初代源码分析</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="1-阅前了解——uri-url-urn"><a href="#1-阅前了解——uri-url-urn" class="headerlink" title="1.阅前了解——uri,url,urn"></a>1.阅前了解——uri,url,urn</h3><pre><code>                        hierarchical part
+        ┌───────────────────┴─────────────────────┐
+                    authority               path
+        ┌───────────────┴───────────────┐┌───┴────┐
+  abc://username:password@example.com:123/path/data?key=value&amp;key2=value2#fragid1
+  └┬┘   └───────┬───────┘ └────┬────┘ └┬┘           └─────────┬─────────┘ └──┬──┘
+scheme  user information     host     port                  query         fragment
 
-        <div class="article-info info-on-right">
-          
-          
+  urn:example:mammal:monotreme:echidna
+  └┬┘ └──────────────┬───────────────┘
+scheme              path</code></pre><p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/URI_syntax_diagram.svg/1920px-URI_syntax_diagram.svg.png" alt="image">   </p>
+<h3 id="2-httprouter-go"><a href="#2-httprouter-go" class="headerlink" title="2.httprouter.go"></a>2.httprouter.go</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Copyright 2013 Julien Schmidt. All rights reserved.</span><br><span class="line">&#x2F;&#x2F; Use of this source code is governed by a BSD-style license that can be found</span><br><span class="line">&#x2F;&#x2F; in the LICENSE file.</span><br><span class="line">&#x2F;&#x2F;这是个基于树形结构的HTTP请求路由器</span><br><span class="line">package router</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;errors&quot;</span><br><span class="line">	&quot;net&#x2F;http&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;跟http.HandlerFunc差不多的回调函数，用于注册到路由中用于处理响应、请求</span><br><span class="line">&#x2F;&#x2F;但还额外多了对请求参数的处理</span><br><span class="line">type HandlerFunc func(http.ResponseWriter, *http.Request, map[string]string)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;Router 实现了http包下的Handler接口，</span><br><span class="line">&#x2F;&#x2F;它可以通过可配置的路由将多个请求分发给不同的回调函数</span><br><span class="line">type Router struct &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;继承路径树节点类，后面有调用node的getValue()方法</span><br><span class="line">	node</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;是否通过对请求路径末尾进行添加“&#x2F;”或删除“&#x2F;”以进行响应</span><br><span class="line">	&#x2F;&#x2F;例如配置的路由是“&#x2F;foo”,但请求路径是&quot;&#x2F;foo&#x2F;&quot;,此时可重定向至“&#x2F;foo”,并且返回状态码301</span><br><span class="line">	RedirectTrailingSlash bool</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;默认用于处理404请求的回调函数</span><br><span class="line">	NotFound http.HandlerFunc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;错误处理函数，对出现在路由回调函数中出现的错误进行处理。</span><br><span class="line">	&#x2F;&#x2F;第三个参数是？，这个函数有利于避免应用崩溃从而提高应用的高可用性</span><br><span class="line">	PanicHandler func(http.ResponseWriter, *http.Request, interface&#123;&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;确保http.Handler在当前包依赖中，是个开发小技巧吧</span><br><span class="line">&#x2F;&#x2F;删掉其实也没关系的</span><br><span class="line">var _ http.Handler &#x3D; New()</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; The router can be configured to also match the requested HTTP method or the</span><br><span class="line">&#x2F;&#x2F; requested Host.</span><br><span class="line">&#x2F;&#x2F;用于返回一个实例化的Router对象的指针，其对象默认斜杠</span><br><span class="line">&#x2F;&#x2F;可配置这个对象以匹配Http请求方法或主机</span><br><span class="line">func New() *Router &#123;</span><br><span class="line">	return &amp;Router&#123;</span><br><span class="line">		RedirectTrailingSlash: true,</span><br><span class="line">		NotFound:              http.NotFound,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;归Router所有的方法，用于对给定的路径注册一个请求回调函数</span><br><span class="line">func (r *Router) Add(path string, h HandlerFunc) error &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;路径头部字符必须为斜杠，否则报错</span><br><span class="line">	if path[0] !&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">		return errors.New(&quot;Path must begin with &#x2F;&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	return r.addRoute(path, h)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;让Router实现 http.Handler 接口的方法ServeHTTP</span><br><span class="line">func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;错误处理函数不为空则定义延迟调用函数以恢复错误</span><br><span class="line">	if r.PanicHandler !&#x3D; nil &#123;</span><br><span class="line">	    &#x2F;&#x2F;defer 会在当前函数或者方法返回之前执行传入的函数</span><br><span class="line">		defer func() &#123;</span><br><span class="line">	        &#x2F;&#x2F;Recover 是一个内置函数用来重新获取对失控协程的控制。恢复仅在延迟函数内有效</span><br><span class="line">	        &#x2F;&#x2F;有错误则调用错误处理函数进行处理</span><br><span class="line">			if rcv :&#x3D; recover(); rcv !&#x3D; nil &#123;</span><br><span class="line">				r.PanicHandler(w, req, rcv)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">    &#x2F;&#x2F;获取请求的路径</span><br><span class="line">	path :&#x3D; req.URL.Path</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;获取路径对应的回调函数，请求参数以及斜杠重定向标识</span><br><span class="line">	if handle, vars, tsr :&#x3D; r.getValue(path); handle !&#x3D; nil &#123;</span><br><span class="line">	    &#x2F;&#x2F;调用回调函数处理相应、请求及其参数</span><br><span class="line">		handle(w, req, vars)</span><br><span class="line">	&#125; else if tsr &amp;&amp; r.RedirectTrailingSlash &#123;</span><br><span class="line">	    &#x2F;&#x2F;没有获取到对应的回调函数但是允许斜杠重定向就进一步处理</span><br><span class="line">		if path[len(path)-1] &#x3D;&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">		    &#x2F;&#x2F;路径末尾有斜杠就去斜杠并重定向</span><br><span class="line">			http.Redirect(w, req, path[:len(path)-1], http.StatusMovedPermanently)</span><br><span class="line">			return</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">		    &#x2F;&#x2F;路径末尾没有斜杠就加斜杠并重定向</span><br><span class="line">			http.Redirect(w, req, path+&quot;&#x2F;&quot;, http.StatusMovedPermanently)</span><br><span class="line">			return</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123; &#x2F;&#x2F; 处理404请求</span><br><span class="line">		r.NotFound(w, req)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-tree-go"><a href="#3-tree-go" class="headerlink" title="3.tree.go"></a>3.tree.go</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Copyright 2013 Julien Schmidt. All rights reserved.</span><br><span class="line">&#x2F;&#x2F; Use of this source code is governed by a BSD-style license that can be found</span><br><span class="line">&#x2F;&#x2F; in the LICENSE file.</span><br><span class="line"></span><br><span class="line">package router</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;errors&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;用于获取两个整型中的最小值</span><br><span class="line">func min(a, b int) int &#123;</span><br><span class="line">	if a &lt;&#x3D; b &#123;</span><br><span class="line">		return a</span><br><span class="line">	&#125;</span><br><span class="line">	return b</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;异常预定义</span><br><span class="line">var (</span><br><span class="line">    &#x2F;&#x2F;路径重复异常</span><br><span class="line">	ErrDuplicatePath     &#x3D; errors.New(&quot;Duplicate Path&quot;)</span><br><span class="line">	&#x2F;&#x2F;特殊节点参数名缺乏异常</span><br><span class="line">	ErrEmptyWildcardName &#x3D; errors.New(&quot;Wildcards must be named with a non-empty name&quot;)</span><br><span class="line">	&#x2F;&#x2F;特殊节点通配冲突，通配节点只能在路径名后部</span><br><span class="line">	ErrCatchAllConflict  &#x3D; errors.New(&quot;CatchAlls are only allowed at the end of the path&quot;)</span><br><span class="line">	&#x2F;&#x2F;子节点冲突异常，特殊节点不可加入，因为被挂载的节点已存在子节点</span><br><span class="line">	ErrChildConflict     &#x3D; errors.New(&quot;Can&#39;t insert a wildcard route because this path has existing children&quot;)</span><br><span class="line">	&#x2F;&#x2F;通配符冲突异常</span><br><span class="line">	ErrWildCardConflict  &#x3D; errors.New(&quot;Conflict with wildcard route&quot;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;树形节点结构</span><br><span class="line">type node struct &#123;</span><br><span class="line">	&#x2F;&#x2F; parent *node</span><br><span class="line">	key        string       &#x2F;&#x2F;对应路径节点名</span><br><span class="line">	indices    []byte       &#x2F;&#x2F;保存各子节点路径名头字符</span><br><span class="line">	children   []*node      &#x2F;&#x2F;子节点数组</span><br><span class="line">	value      HandlerFunc  &#x2F;&#x2F;回调函数</span><br><span class="line">	wildChild  bool         &#x2F;&#x2F;当前节点是否有特殊子节点（包括参数节点和通配节点）</span><br><span class="line">	isParam    bool         &#x2F;&#x2F;当前节点是否为参数节点</span><br><span class="line">	isCatchAll bool         &#x2F;&#x2F;当前节点是否为通配节点</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;根据给定的路径节点名和对应的回调函数创建子节点并添加到路由树中</span><br><span class="line">&#x2F;&#x2F;此方法线程不安全</span><br><span class="line">func (n *node) addRoute(key string, value HandlerFunc) error &#123;</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;如果当前节点路径名不为空</span><br><span class="line">	if len(n.key) !&#x3D; 0 &#123;</span><br><span class="line">	OUTER:</span><br><span class="line">		for &#123;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;找出当前节点路径名与被添加路径节点名的最长公共前缀字符串</span><br><span class="line">			&#x2F;&#x2F;公共前缀字符串并不包含&#39;:&#39;或&#39;*&#39;</span><br><span class="line">			&#x2F;&#x2F;因为节点路径名不能包含这些字符</span><br><span class="line">			i :&#x3D; 0</span><br><span class="line">			for j :&#x3D; min(len(key), len(n.key)); i &lt; j &amp;&amp; key[i] &#x3D;&#x3D; n.key[i]; i++ &#123;</span><br><span class="line">			&#125;</span><br><span class="line">			&#x2F;&#x2F;此时i是在共同前缀字符串之后的第一个字符的索引</span><br><span class="line">			&#x2F;&#x2F;对两者的路径名以i索引为起点进行分割</span><br><span class="line">			</span><br><span class="line">			&#x2F;&#x2F;如果i等于(大于是不可能的)当前节点名长度，说明当前节点名都是两者的共同前缀</span><br><span class="line">			if i &lt; len(n.key) &#123;</span><br><span class="line">			</span><br><span class="line">			    &#x2F;&#x2F;当前节点名从i索引开始(除去共同前缀)有剩余，则以其i索引往后的字符串作为路径名创建子节点</span><br><span class="line">			    &#x2F;&#x2F;并将当前节点的剩余属性值赋予新建的子节点</span><br><span class="line">				n.children &#x3D; []*node&#123;&amp;node&#123;</span><br><span class="line">					key:       n.key[i:],</span><br><span class="line">					indices:   n.indices,</span><br><span class="line">					children:  n.children,</span><br><span class="line">					value:     n.value,</span><br><span class="line">					wildChild: n.wildChild,</span><br><span class="line">				&#125;&#125;</span><br><span class="line">				</span><br><span class="line">				&#x2F;&#x2F;将i索引处的字符作为当前节点的索引值，也就是共同前缀的下一个字符</span><br><span class="line">				n.indices &#x3D; []byte&#123;n.key[i]&#125;</span><br><span class="line">				</span><br><span class="line">				&#x2F;&#x2F;其i索引往前的字符串作为当前节点的路径名</span><br><span class="line">				n.key &#x3D; key[:i]</span><br><span class="line">				n.value &#x3D; nil &#x2F;&#x2F;无回调函数</span><br><span class="line">				n.wildChild &#x3D; false &#x2F;&#x2F;非通配符子节点</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F; Make new Node a child of this node</span><br><span class="line">			</span><br><span class="line">            &#x2F;&#x2F;判断被添加的路径名从i索引开始(除去共同前缀)是否有剩余</span><br><span class="line">			if i &lt; len(key) &#123;</span><br><span class="line">				&#x2F;&#x2F;有剩余，则以其i索引往后的字符串作为路径名</span><br><span class="line">				key &#x3D; key[i:]</span><br><span class="line">				</span><br><span class="line">				&#x2F;&#x2F;判断当前节点是否有特殊子节点</span><br><span class="line">				if n.wildChild &#123;</span><br><span class="line">				    &#x2F;&#x2F;如果是就将其特殊子节点设为当前节点</span><br><span class="line">					n &#x3D; n.children[0]</span><br><span class="line"></span><br><span class="line">					&#x2F;&#x2F; Check if the wildcard matches</span><br><span class="line">					&#x2F;&#x2F;判断当前节点路径名是否为被添加路径名的头部或全部</span><br><span class="line">					if len(key) &gt;&#x3D; len(n.key) &amp;&amp; n.key &#x3D;&#x3D; key[:len(n.key)] &#123;</span><br><span class="line">						&#x2F;&#x2F; check for longer wildcard, e.g. :name and :namex</span><br><span class="line">						&#x2F;&#x2F;如果是头部，而被添加路径名的头部之后却不是&#39;&#x2F;&#39;，就报错</span><br><span class="line">						if len(n.key) &lt; len(key) &amp;&amp; key[len(n.key)] !&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">							return ErrWildCardConflict</span><br><span class="line">						&#125;</span><br><span class="line">						continue OUTER</span><br><span class="line">					&#125; else &#123;</span><br><span class="line">					    &#x2F;&#x2F;特殊节点冲突</span><br><span class="line">					    &#x2F;&#x2F;类似于将“abc&#x2F;go:who”路径添加到“abc&#x2F;go:where”路径节点的情况</span><br><span class="line">						return ErrWildCardConflict</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				</span><br><span class="line">				&#x2F;&#x2F;获取被添加路径名i索引处的字符</span><br><span class="line">				c :&#x3D; key[0]</span><br><span class="line"></span><br><span class="line">				&#x2F;&#x2F; TODO: remove &#x2F; edit for variable delimiter</span><br><span class="line">				&#x2F;&#x2F;当前节点是参数节点，且被添加路径名i索引处是 &#39;&#x2F;&#39;,并且参数节点下还有一个子节点 :user &#x2F; hello,:user &#x2F; world</span><br><span class="line">				if n.isParam &amp;&amp; c &#x3D;&#x3D; &#39;&#x2F;&#39; &amp;&amp; len(n.children) &#x3D;&#x3D; 1 &#123;</span><br><span class="line">					n &#x3D; n.children[0]</span><br><span class="line">					continue OUTER</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				&#x2F;&#x2F;如果在当前节点的索引数组中找到被添加路径名的共同前缀的下一个字符，就选择相应的子节点作为当前节点继续</span><br><span class="line">				for i, index :&#x3D; range n.indices &#123;</span><br><span class="line">					if c &#x3D;&#x3D; index &#123;</span><br><span class="line">						n &#x3D; n.children[i]</span><br><span class="line">						continue OUTER</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;判断i索引处的字符(被添加路径名的共同前缀的下一个字符)是否为&#39;:&#39;或&#39;*&#39;</span><br><span class="line">				if c !&#x3D; &#39;:&#39; &amp;&amp; c !&#x3D; &#39;*&#39; &#123;</span><br><span class="line">				    &#x2F;&#x2F;都不是，则将i索引处的字符添加到当前节点的索引数组中</span><br><span class="line">					n.indices &#x3D; append(n.indices, c)</span><br><span class="line">					child :&#x3D; &amp;node&#123;&#125;</span><br><span class="line">					n.children &#x3D; append(n.children, child)</span><br><span class="line">					n &#x3D; child</span><br><span class="line">				&#125;</span><br><span class="line">				&#x2F;&#x2F;将不重复部分的路径名和回调函数保存到新节点中</span><br><span class="line">				return n.insertRoute(key, value)</span><br><span class="line"></span><br><span class="line">			&#125; else if i &#x3D;&#x3D; len(key) &#123; &#x2F;&#x2F; Make node a (in-path) leaf</span><br><span class="line">			    &#x2F;&#x2F;被添加的路径名等于共同前缀，</span><br><span class="line">				if n.value !&#x3D; nil &#123;</span><br><span class="line">				    &#x2F;&#x2F;当前节点有回调函数说明当前节点名也等于共同前缀，</span><br><span class="line">				    &#x2F;&#x2F;因为如果不等于的话，那么n代表的是新节点，里面是没有回调函数的。</span><br><span class="line">				    &#x2F;&#x2F;说明路由重复添加了</span><br><span class="line">					return ErrDuplicatePath</span><br><span class="line">				&#125;</span><br><span class="line">				&#x2F;&#x2F;将回调函数赋予当前新节点</span><br><span class="line">				n.value &#x3D; value</span><br><span class="line">			&#125;</span><br><span class="line">			&#x2F;&#x2F;无错误返回</span><br><span class="line">			return nil</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123; &#x2F;&#x2F; 如果当前节点路径名为空</span><br><span class="line">		return n.insertRoute(key, value)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;将路径节点名和对应的回调函数保存到当前节点</span><br><span class="line">func (n *node) insertRoute(key string, value HandlerFunc) error &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;定义偏移量，初始化值为0</span><br><span class="line">	var offset int</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;找到最近的特殊符(此处仅指&#39;:&#39;或&#39;*&#39;&#39;)前的字符串</span><br><span class="line">	for i, j :&#x3D; 0, len(key); i &lt; j; i++ &#123;</span><br><span class="line">	    &#x2F;&#x2F;找到有特殊符就进行处理</span><br><span class="line">		if b :&#x3D; key[i]; b &#x3D;&#x3D; &#39;:&#39; || b &#x3D;&#x3D; &#39;*&#39; &#123;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;检查此节点是否存在子节点，存在则不宜插入新的子节点</span><br><span class="line">			if len(n.children) &gt; 0 &#123;</span><br><span class="line">				return ErrChildConflict</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			k :&#x3D; i + 1</span><br><span class="line">			&#x2F;user:name</span><br><span class="line">			&#x2F;&#x2F;获取靠特殊符最近的&#39;&#x2F;&#39;的索引，或路径名最后一个字符的索并加1</span><br><span class="line">			for k &lt; j &amp;&amp; key[k] !&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">			    &#x2F;&#x2F;通配符后面还有字符且跟在后面的不是&#39;&#x2F;&#39;</span><br><span class="line">				k++</span><br><span class="line">			&#125;</span><br><span class="line">            &#x2F;&#x2F;特殊符后面没有字符或跟在后面的是&#39;&#x2F;&#39;&#39;</span><br><span class="line">			if k-i &#x3D;&#x3D; 1 &#123;</span><br><span class="line">			    &#x2F;&#x2F;返回无通配符名字错误</span><br><span class="line">				return ErrEmptyWildcardName</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;如果是*通配符且,k不等于路径长度，说明k为&#x2F;&#39;的索引</span><br><span class="line">            &#x2F;&#x2F;说明路径名类似这个格式“*abcd&#x2F;adbc”</span><br><span class="line">			if b &#x3D;&#x3D; &#39;*&#39; &amp;&amp; len(key) !&#x3D; k &#123;</span><br><span class="line">			    &#x2F;&#x2F;返回通配全部冲突错误</span><br><span class="line">				return ErrCatchAllConflict</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;新建特殊节点</span><br><span class="line">			child :&#x3D; &amp;node&#123;&#125;</span><br><span class="line">			if b &#x3D;&#x3D; &#39;:&#39; &#123;</span><br><span class="line">				child.isParam &#x3D; true &#x2F;&#x2F;参数节点</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				child.isCatchAll &#x3D; true &#x2F;&#x2F;通配节点</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;如果特殊符不是路径名的第一个字符，</span><br><span class="line">            &#x2F;&#x2F;那么当前节点的路径名就设为特殊符前面的字符串</span><br><span class="line">			if i &gt; 0 &#123;</span><br><span class="line">				n.key &#x3D; key[offset:i]</span><br><span class="line">				offset &#x3D; i</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;将特殊节点挂载到当前节点</span><br><span class="line">			n.children &#x3D; []*node&#123;child&#125;</span><br><span class="line">			&#x2F;&#x2F;当前节点有特殊节点</span><br><span class="line">			n.wildChild &#x3D; true</span><br><span class="line">			</span><br><span class="line">			&#x2F;&#x2F;将特殊节点设为当前节点</span><br><span class="line">			n &#x3D; child</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;如果k小于路径名长度，则此时k等于&#39;&#x2F;&#39;的索引</span><br><span class="line">			&#x2F;&#x2F;k索引开始往后还有字符串，需进一步分割路径名</span><br><span class="line">			if k &lt; j &#123;</span><br><span class="line">			    &#x2F;&#x2F;将&#39;&#x2F;&#39;和通配符之间的字符作为通配符节点的路径名</span><br><span class="line">				n.key &#x3D; key[offset:k]</span><br><span class="line">				offset &#x3D; k</span><br><span class="line"></span><br><span class="line">				child :&#x3D; &amp;node&#123;&#125;</span><br><span class="line">				n.children &#x3D; []*node&#123;child&#125;</span><br><span class="line">				&#x2F;&#x2F;重设当前节点</span><br><span class="line">				n &#x3D; child</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;将当前节点路径名与对应回调函数保存到节点中</span><br><span class="line">	n.key &#x3D; key[offset:]</span><br><span class="line">	n.value &#x3D; value</span><br><span class="line">	</span><br><span class="line">	&#x2F;&#x2F;返回空错误，即正常运行</span><br><span class="line">	return nil</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;根据给定路径名获取回调函数、斜杠优化重定向标识以及保存在map中的被通配符匹配到的值，</span><br><span class="line">&#x2F;&#x2F;如果根据给定路径名没有获取到回调函数，但是经过斜杠优化后能找到，那么斜杠优化重定向标示会被设置为true,否则为false</span><br><span class="line">func (n *node) getValue(key string) (value HandlerFunc, vars map[string]string, tsr bool) &#123;</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F; 迭代节点，如果是刚进入此方法，n此时是一整个路由树，迭代会从根节点开始。</span><br><span class="line">OUTER:</span><br><span class="line">    &#x2F;&#x2F;如果当前节点路径名是给定路径名的头部或全部</span><br><span class="line">	for len(key) &gt;&#x3D; len(n.key) &amp;&amp; key[:len(n.key)] &#x3D;&#x3D; n.key &#123;</span><br><span class="line">	</span><br><span class="line">	    &#x2F;&#x2F;如果是全部，说明检索到给定路由</span><br><span class="line">		if len(key) &#x3D;&#x3D; len(n.key) &#123;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;如果当前节点有这回调函数就返回</span><br><span class="line">			if value &#x3D; n.value; value !&#x3D; nil &#123;</span><br><span class="line">				return &#x2F;&#x2F;隐式返回的是value</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;查询当前节点是否有以&#39;&#x2F;&#39;&#39;开头的子节点，有就处理并返回</span><br><span class="line">			for i, index :&#x3D; range n.indices &#123;</span><br><span class="line">				if index &#x3D;&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">					tsr &#x3D; n.children[i].key &#x3D;&#x3D; &quot;&#x2F;&quot; &amp;&amp; n.children[i].value !&#x3D; nil</span><br><span class="line">					return</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			return</span><br><span class="line"></span><br><span class="line">		&#125; else if n.wildChild &#x3D;&#x3D; true &#123;</span><br><span class="line">		    &#x2F;&#x2F;截取给定路径名</span><br><span class="line">			key &#x3D; key[len(n.key):]</span><br><span class="line">			</span><br><span class="line">			&#x2F;&#x2F;设定特殊子节点为当前节点</span><br><span class="line">			n &#x3D; n.children[0]</span><br><span class="line"></span><br><span class="line">			if n.isParam &#123;</span><br><span class="line">				&#x2F;&#x2F; find param end (either &#39;&#x2F;&#39;&#39; or key end)</span><br><span class="line">				&#x2F;&#x2F;找到给定路径名最近的&#39;&#x2F;&#39;索引，或结尾字符索引+1</span><br><span class="line">				k :&#x3D; 0</span><br><span class="line">				l :&#x3D; len(key)</span><br><span class="line">				for k &lt; l &amp;&amp; key[k] !&#x3D; &#39;&#x2F;&#39; &#123;</span><br><span class="line">					k++</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				&#x2F;&#x2F; 从参数节点中获取路径名作为参数名，从给定路径名获取参数值</span><br><span class="line">				if vars &#x3D;&#x3D; nil &#123;</span><br><span class="line">					&#x2F;&#x2F;vars &#x3D; new(Vars)</span><br><span class="line">					&#x2F;&#x2F;vars.add(n.key[1:], key[:k])</span><br><span class="line">					vars &#x3D; map[string]string&#123;</span><br><span class="line">						n.key[1:]: key[:k],</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; else &#123;</span><br><span class="line">				    &#x2F;&#x2F;n.key[0]等于&#39;:&#39;</span><br><span class="line">					vars[n.key[1:]] &#x3D; key[:k]</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				&#x2F;&#x2F;k索引处为&#39;&#x2F;&#39;,则需进一步迭代</span><br><span class="line">				if k &lt; l &#123;</span><br><span class="line">					if len(n.children) &gt; 0 &#123;</span><br><span class="line">						key &#x3D; key[k:]</span><br><span class="line">						n &#x3D; n.children[0]</span><br><span class="line">						continue</span><br><span class="line">					&#125; else &#123; &#x2F;&#x2F;判断&#39;&#x2F;&#39;斜杠是否为结尾,则设置斜杠优化标识符为true</span><br><span class="line">					    &#x2F;&#x2F;这里不应该再判断下当前节点是否有回调函数？</span><br><span class="line">						tsr &#x3D; l &#x3D;&#x3D; k+1</span><br><span class="line">						return</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">                &#x2F;&#x2F;k索引处为末尾之后，则说明给定路径匹配到了</span><br><span class="line">				if value &#x3D; n.value; value !&#x3D; nil &#123;</span><br><span class="line">					return</span><br><span class="line">				&#125; else if len(n.children) &#x3D;&#x3D; 1 &#123;</span><br><span class="line">					&#x2F;&#x2F;无回调函数，则获取参数节点的子节点，</span><br><span class="line">					&#x2F;&#x2F;参数节点的子节点有且只有一个，因为跟在参数节点后面的只能是&#39;&#x2F;&#39;</span><br><span class="line">					n &#x3D; n.children[0]</span><br><span class="line">					&#x2F;&#x2F;说明可进行斜杠优化重定型，然后就能够检索到回调函数了</span><br><span class="line">					tsr &#x3D; n.key &#x3D;&#x3D; &quot;&#x2F;&quot; &amp;&amp; n.value !&#x3D; nil</span><br><span class="line">				&#125;</span><br><span class="line">				return</span><br><span class="line"></span><br><span class="line">			&#125; else &#123; &#x2F;&#x2F; catchAll</span><br><span class="line">				&#x2F;&#x2F; save value</span><br><span class="line">				if vars &#x3D;&#x3D; nil &#123;</span><br><span class="line">					vars &#x3D; map[string]string&#123;</span><br><span class="line">						n.key[1:]: key,</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; else &#123;</span><br><span class="line">					vars[n.key[1:]] &#x3D; key</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				value &#x3D; n.value</span><br><span class="line">				return</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125; else &#123;</span><br><span class="line">		    &#x2F;&#x2F;当前节点是给定路径名的头部，则查询索引数组做进一步处理</span><br><span class="line">			key &#x3D; key[len(n.key):]</span><br><span class="line">			c :&#x3D; key[0]</span><br><span class="line"></span><br><span class="line">			for i, index :&#x3D; range n.indices &#123;</span><br><span class="line">				if c &#x3D;&#x3D; index &#123;</span><br><span class="line">				    &#x2F;&#x2F;给定路径名头部之后的字符在索引数组中，就迭代相应子节点</span><br><span class="line">					n &#x3D; n.children[i]</span><br><span class="line">					continue OUTER</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F;没有检索到子节点，则判断截取后的路径名是否为&#39;&#x2F;&#39;,是则设置斜杠优化标识为true</span><br><span class="line">			tsr &#x3D; key &#x3D;&#x3D; &quot;&#x2F;&quot; &amp;&amp; n.value !&#x3D; nil</span><br><span class="line">			return</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F;给定路径是当前节点的头部，则判断是否可进行斜杠优化重定向。</span><br><span class="line">	tsr &#x3D; (n.value !&#x3D; nil &amp;&amp; len(key)+1 &#x3D;&#x3D; len(n.key) &amp;&amp; n.key[len(key)] &#x3D;&#x3D; &#39;&#x2F;&#39;) || (key &#x3D;&#x3D; &quot;&#x2F;&quot;)</span><br><span class="line">	return</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
 
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-03-09T07:05:40.318Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-09</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">node.js学习笔记</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">node.js学习笔记</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/20/%E4%BB%80%E4%B9%88%E6%98%AFJSONP%E6%8A%80%E6%9C%AF/" class="archive-article-date">
-  	<time datetime="2020-02-20T04:22:23.603Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/20/%E4%BB%80%E4%B9%88%E6%98%AFJSONP%E6%8A%80%E6%9C%AF/">什么是JSONP技术</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/18/map/" class="archive-article-date">
-  	<time datetime="2020-02-18T13:01:23.575Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/18/map/">map</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/18/hello-world/" class="archive-article-date">
-  	<time datetime="2020-02-18T12:02:41.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/18/hello-world/">Hello World</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -319,8 +314,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

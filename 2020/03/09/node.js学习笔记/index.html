@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020 | 知否知否</title>
+  <title>node.js学习笔记 | 知否知否</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="知否知否">
-<meta property="og:url" content="http://yoursite.com/archives/2020/index.html">
+  <meta name="description" content="1.简介&amp;emsp;&amp;emsp;node.js运行于服务端，基于chrom的v8引擎。为什么会出现node.js？我想是因为出于某种原因，需要将js运行在服务端。但是因为js属于脚本，是需要借助浏览器来运行的。于是就需要把浏览器的引擎单独拿出来为js创建一个运行环境，于是node.js就产生了。简单来说就是node.js是为在服务端运行JavaScript而生的，它是js的一个独立于浏览器的运行平">
+<meta property="og:type" content="article">
+<meta property="og:title" content="node.js学习笔记">
+<meta property="og:url" content="http://yoursite.com/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="知否知否">
+<meta property="og:description" content="1.简介&amp;emsp;&amp;emsp;node.js运行于服务端，基于chrom的v8引擎。为什么会出现node.js？我想是因为出于某种原因，需要将js运行在服务端。但是因为js属于脚本，是需要借助浏览器来运行的。于是就需要把浏览器的引擎单独拿出来为js创建一个运行环境，于是node.js就产生了。简单来说就是node.js是为在服务端运行JavaScript而生的，它是js的一个独立于浏览器的运行平">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-03-09T07:05:40.318Z">
+<meta property="article:modified_time" content="2020-03-08T14:07:23.046Z">
 <meta property="article:author" content="bryce">
 <meta name="twitter:card" content="summary">
   
@@ -146,157 +150,242 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-node.js学习笔记" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="archive-article-date">
-  	<time datetime="2020-03-18T12:46:45.291Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-18</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">go-httprouter初代源码分析</a>
+    <h1 class="article-title" itemprop="name">
+      node.js学习笔记
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+        
+        <a href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
   	<time datetime="2020-03-09T07:05:40.318Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-09</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">node.js学习笔记</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h3><p>&emsp;&emsp;node.js运行于服务端，基于chrom的v8引擎。为什么会出现node.js？我想是因为出于某种原因，需要将js运行在服务端。但是因为js属于脚本，是需要借助浏览器来运行的。于是就需要把浏览器的引擎单独拿出来为js创建一个运行环境，于是node.js就产生了。简单来说就是node.js是为在服务端运行JavaScript而生的，它是js的一个独立于浏览器的运行平台。</p>
+<h3 id="2-运行模式"><a href="#2-运行模式" class="headerlink" title="2.运行模式"></a>2.运行模式</h3><ol>
+<li>命令模式, 如 node mytest.js</li>
+<li>交互模式，类似于python</li>
+</ol>
+<h3 id="3-开发应用流程"><a href="#3-开发应用流程" class="headerlink" title="3.开发应用流程"></a>3.开发应用流程</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//步骤1：引入require 模块</span></span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">request, response</span>)</span>&#123;</span><br><span class="line">    response.writeHead(<span class="number">200</span>,&#123;<span class="string">'Content'</span>:<span class="string">'text/plain'</span>&#125;);</span><br><span class="line">    response.end(<span class="string">'Hello World\n'</span>);</span><br><span class="line">&#125;).listen(<span class="number">8888</span>);</span><br><span class="line"><span class="comment">//</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-NPM"><a href="#4-NPM" class="headerlink" title="4.NPM"></a>4.NPM</h3><p>&emsp;&emsp;包管理器，相当于java的maven</p>
+<h3 id="5-REPL-交互式解释器"><a href="#5-REPL-交互式解释器" class="headerlink" title="5.REPL(交互式解释器)"></a>5.REPL(交互式解释器)</h3><p>&emsp;&emsp;类似于终端或者shell,用于通过命令行来和系统或内核交互。可以将其看成chrome浏览器调试工具中的控制台</p>
+<ol>
+<li>下划线变量用于获取上一个表达式的结果</li>
+<li>常用命令</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">命令</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ctrl + c</td>
+<td align="center">退出终端</td>
+</tr>
+<tr>
+<td align="center">ctrl + c(2次)</td>
+<td align="center">退出REPL</td>
+</tr>
+<tr>
+<td align="center">ctrl + d</td>
+<td align="center">退出REPL</td>
+</tr>
+<tr>
+<td align="center">向上/向下键</td>
+<td align="center">查看历史命令</td>
+</tr>
+<tr>
+<td align="center">tab键</td>
+<td align="center">列出当前命令</td>
+</tr>
+<tr>
+<td align="center">.break</td>
+<td align="center">退出多行表达式</td>
+</tr>
+</tbody></table>
+<h3 id="6-回调函数"><a href="#6-回调函数" class="headerlink" title="6.回调函数"></a>6.回调函数</h3><p>&emsp;&emsp;代码可分阻塞和非阻塞两种，非阻塞的代码可以大大地提高效率。回调函数是非阻塞代码的重要组成部分，我个人的理解就是，回调函数可以暂时被异步地缓存起来，在缓存队列中排队被调用。所以主方法可以继续执行而不受回调函数阻塞</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><pre><code>var fs = require(&quot;fs&quot;);
+fs.readfile(&apos;input.txt&apos;,function(err,data){
+    if (err) return console.error(err);
+    console.log(data.toString());
+})
+console.log(&quot;程序执行结束&quot;);</code></pre><h3 id="7-事件循环"><a href="#7-事件循环" class="headerlink" title="7.事件循环"></a>7.事件循环</h3><p>&emsp;&emsp;node采用事件驱动模型，为事件注册回调函数，循环监听事件，当事件发生时，就调用相应地回调函数进行处理。我个人的理解就是就是：可以把请求当成一个事件，处理请求的方法就是回调函数，为请求注册回调函数后，当相应的请求发生时，被监听到了就会调回回调函数处理请求。</p>
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var events &#x3D; require(&#39;events&#39;);</span><br><span class="line">var eventEmitter &#x3D; new events.EventEmitter();</span><br><span class="line">var connectHandler &#x3D; function connected()&#123;</span><br><span class="line">    console.log(&#39;连接成功&#39;);</span><br><span class="line">    eventEmitter.emit(&#39;data_received&#39;);</span><br><span class="line">&#125;</span><br><span class="line">eventEmitter.on(&#39;connection&#39;,connectHandler);</span><br><span class="line">eventEmitter.on(&#39;cata_received&#39;,function()&#123;</span><br><span class="line">    console.log(&#39;数据接收成功。&#39;);</span><br><span class="line">&#125;)</span><br><span class="line">eventEmitter.emit(&#39;connection&#39;);</span><br><span class="line">console.log(&quot;程序执行完毕&quot;)</span><br></pre></td></tr></table></figure>
+<h3 id="8-EventEmitter"><a href="#8-EventEmitter" class="headerlink" title="8.EventEmitter"></a>8.EventEmitter</h3><p>&emsp;&emsp;属于比较底层的一个对象，用于封装事件的监听器和触发事件，在此之上的各类事件分发对象都会继承此类。一般来说，支持事件响应的核心模块都是 EventEmitter 的子类，比如fs,net和http.</p>
+<h4 id="实例-1"><a href="#实例-1" class="headerlink" title="实例"></a>实例</h4><pre><code>var events = require(&apos;events&apos;);
+var emitter = new events.EventEmitter();
+//on()用于为事件注册监听功能
+emitter.on(&apos;someEvent&apos;,function(arg1,arg2){
+   console.log(&apos;listener1&apos;,arg1, arg2); 
+});
+//可为事件注册多个监听功能
+emitter.on(&apos;someEvent&apos;,function(arg1,arg2){
+    console.log(&apos;listener2&apos;,arg1,arg2);
+});
+//emit()方法用于触发事件
+emitter.emit(&apos;someEvent&apos;,&apos;arg1参数&apos;，&apos;arg2参数&apos;);</code></pre><h4 id="缺省事件"><a href="#缺省事件" class="headerlink" title="缺省事件"></a>缺省事件</h4><table>
+<thead>
+<tr>
+<th align="center">事件名</th>
+<th align="center">描述</th>
+<th align="center">回调函数的参数</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">newListener</td>
+<td align="center">为事件添加新监听器时被触发</td>
+<td align="center">event:事件名,listener：处理事件函数</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">removeListener</td>
+<td align="center">为事件删除监听器时被触发</td>
+<td align="center">event:事件名,listener：处理事件函数</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">error</td>
+<td align="center">存在异常时被触发</td>
+<td align="center">无参</td>
+<td align="center">没有注册错误处理监听器的话，程序会退出并输出错误信息</td>
+</tr>
+</tbody></table>
+<h4 id="实例-2"><a href="#实例-2" class="headerlink" title="实例"></a>实例</h4><pre><code>eventEmitter.addListener(&apos;newListener&apos;, function(arg1,arg2){
+    console.log(&apos;添加了新的监听器&apos;,arg1,arg2);
+});
+eventEmitter.addListener(&apos;removeListener&apos;, function(arg1,arg2){
+    console.log(&apos;删除了监听器&apos;,arg1,arg2);
+});
+eventEmitter.addListener(&apos;error&apos;,function(){console.log(&apos;报错了，请处理&apos;);});
+eventEmitter.emit(&apos;error&apos;);</code></pre><h3 id="Buffer-缓冲区"><a href="#Buffer-缓冲区" class="headerlink" title="Buffer(缓冲区)"></a>Buffer(缓冲区)</h3>
+      
 
-        <div class="article-info info-on-right">
-          
-          
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/03/09/node.js%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/20/%E4%BB%80%E4%B9%88%E6%98%AFJSONP%E6%8A%80%E6%9C%AF/" class="archive-article-date">
-  	<time datetime="2020-02-20T04:22:23.603Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-20</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/2020/03/18/go-httprouter%E5%88%9D%E4%BB%A3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          go-httprouter初代源码分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/02/20/%E4%BB%80%E4%B9%88%E6%98%AFJSONP%E6%8A%80%E6%9C%AF/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">什么是JSONP技术</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/20/%E4%BB%80%E4%B9%88%E6%98%AFJSONP%E6%8A%80%E6%9C%AF/">什么是JSONP技术</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/18/map/" class="archive-article-date">
-  	<time datetime="2020-02-18T13:01:23.575Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/18/map/">map</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/02/18/hello-world/" class="archive-article-date">
-  	<time datetime="2020-02-18T12:02:41.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/02/18/hello-world/">Hello World</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -319,8 +408,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
