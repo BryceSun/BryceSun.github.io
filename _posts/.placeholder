@@ -1,1 +1,12 @@
+---
+layout: post #post，page，default
+title: Windows脚本添加数字签名
+date: 2025-07-23
+categories: [powershell]
+tags: [签名]
+image:
+ path: assets/img/blog_face/默认封面.png
+ alt:
+---
 
+2025-07-23-从复制Markdown文本再生成帖子
