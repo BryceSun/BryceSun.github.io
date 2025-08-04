@@ -1,7 +1,7 @@
 ---
 title: httprouter初代源码分析
 date: 2020-03-19 16:00:00
-categories: [源码分析]
+categories: [golang]
 tags: [httprouter]     # TAG 名称应始终为小写，但实测好像不需要
 image:
   path: assets/img/blog_face/httprouter初代源码分析.png

@@ -1,8 +1,8 @@
 ---
 title: Puppeteer使用介绍
 date: 2025-07-26
-categories: [未知]
-tags: [未知]
+categories: [前端]
+tags: [数据挖掘]
 image:
  path: assets/img/blog_face/默认封面.png
  alt:

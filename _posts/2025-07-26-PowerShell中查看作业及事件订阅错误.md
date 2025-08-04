@@ -1,8 +1,8 @@
 ---
 title: PowerShell中查看作业及事件订阅错误
 date: 2025-07-26
-categories: [未知]
-tags: [未知]
+categories: [脚本,powershell]
+tags: [事件监听]
 image:
  path: assets/img/blog_face/默认封面.png
  alt:

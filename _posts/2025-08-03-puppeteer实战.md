@@ -2,7 +2,7 @@
 layout: post
 title: puppeteer实战
 category: [前端]
-tags: [抓虫]
+tags: [爬虫]
 image:
  path: assets/img/blog_face/默认封面.png
  alt:

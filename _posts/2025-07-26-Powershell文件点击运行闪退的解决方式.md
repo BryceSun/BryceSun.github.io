@@ -1,8 +1,8 @@
 ---
 title: Powershell文件点击运行闪退的解决方式
 date: 2025-07-26
-categories: [未知]
-tags: [未知]
+categories: [脚本,powershell]
+tags: [闪退]
 image:
  path: assets/img/blog_face/默认封面.png
  alt:
